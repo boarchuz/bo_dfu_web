@@ -430,9 +430,9 @@ var dfu = {};
         );
     };
 
-    dfu.Device.prototype.detach = function() {
-        return this.requestOut(dfu.DETACH, undefined, 1000);
-    }
+    // dfu.Device.prototype.detach = function() {
+    //     return this.requestOut(dfu.DETACH, undefined, 1000);
+    // }
 
     dfu.Device.prototype.waitDisconnected = async function(timeout) {
         let device = this;
@@ -625,7 +625,7 @@ var dfu = {};
             try {
                 // Wait until it returns to idle.
                 // If it's not really manifestation tolerant, it might transition to MANIFEST_WAIT_RESET
-                dfu_status = await this.poll_until(state => (state == dfu.dfuIDLE || state == dfu.dfuMANIFEST_WAIT_RESET));
+                dfu_status = await this.poll_until(state => (state == dfu.appIDLE || state == dfu.dfuIDLE || state == dfu.dfuMANIFEST_WAIT_RESET));
                 if (dfu_status.state == dfu.dfuMANIFEST_WAIT_RESET) {
                     this.logDebug("Device transitioned to MANIFEST_WAIT_RESET even though it is manifestation tolerant");
                 }
@@ -651,17 +651,18 @@ var dfu = {};
         }
 
         // Reset to exit MANIFEST_WAIT_RESET
-        try {
-            await this.device_.reset();
-        } catch (error) {
-            if (error == "NetworkError: Unable to reset the device." ||
-                error == "NotFoundError: Device unavailable." ||
-                error == "NotFoundError: The device was disconnected.") {
-                this.logDebug("Ignored reset error");
-            } else {
-                throw "Error during reset for manifestation: " + error;
-            }
-        }
+        // try {
+        //     await this.device_.reset();
+        // } catch (error) {
+        //     if (error == "NetworkError: Unable to reset the device." ||
+        //         error == "NotFoundError: Device unavailable." ||
+        //         error == "NotFoundError: The device was disconnected.") {
+        //         this.logDebug("Ignored reset error");
+        //     } else {
+        //         throw "Error during reset for manifestation: " + error;
+        //     }
+        // }
+
 
         return;
     };
