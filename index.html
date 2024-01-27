@@ -1,105 +1,217 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en" class="h-100" data-bs-theme="auto">
   <head>
-    <link rel="stylesheet" type="text/css" href="../sakura.css" />
-    <title>WebUSB DFU</title>
+    <script src="color-modes.js"></script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>BO DFU</title>
+
     <script src="dfu.js"></script>
-    <script src="dfuse.js"></script>
-    <script src="FileSaver.js"></script>
     <script src="dfu-util.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+
     <style>
-      p.warning {
-        color: red;
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
       }
-      p.error {
-        color: red;
-        font-weight: bold;
+
+      .bd-mode-toggle {
+        z-index: 1500;
       }
-      label.radio {
-        display: inline;
-      }
-      input:invalid {
-        color:red;
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
       }
     </style>
   </head>
-  <body>
-    <a href="https://github.com/devanlai/webdfu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
-    <p>
+
+  <body class="d-flex flex-column h-100">
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+      <symbol id="check2" viewBox="0 0 16 16">
+        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+      </symbol>
+      <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+      </symbol>
+      <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+      </symbol>
+      <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+      </symbol>
+    </svg>
+
+    <div class="container px-4 pt-5">
+      <div class="row align-items-center g-lg-5 pt-5">
+        <div class="col text-center text-lg">
+          <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">BO DFU</h1>
+          <p class="col fs-4">ESP32 WebUSB DFU Firmware Downloader</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container col-xl-10 col-xxl-8 px-4 py-2">
+      <div class="row align-items-center g-lg-5 py-5">
+        <div class="col-md-10 mx-auto col-lg-7">
+          <div class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+            <div id="connectedDiv" style="display:none;">
+              <div class="container">
+                <div class="row">
+                  <div class="col-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-usb-symbol" viewBox="0 0 16 16">
+                      <path d="m7.792.312-1.533 2.3A.25.25 0 0 0 6.467 3H7.5v7.319a2.5 2.5 0 0 0-.515-.298L5.909 9.56A1.5 1.5 0 0 1 5 8.18v-.266a1.5 1.5 0 1 0-1 0v.266a2.5 2.5 0 0 0 1.515 2.298l1.076.461a1.5 1.5 0 0 1 .888 1.129 2.001 2.001 0 1 0 1.021-.006v-.902a1.5 1.5 0 0 1 .756-1.303l1.484-.848A2.5 2.5 0 0 0 11.995 7h.755a.25.25 0 0 0 .25-.25v-2.5a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25v2.5c0 .138.112.25.25.25h.741a1.5 1.5 0 0 1-.747 1.142L8.76 8.99a3 3 0 0 0-.26.17V3h1.033a.25.25 0 0 0 .208-.389L8.208.312a.25.25 0 0 0-.416 0"/>
+                    </svg>
+                  </div>
+                  <div class="col">
+                    <div class="mb-4 text-center">
+                      <h4><span id="deviceInfoManufacturer"></span> <span id="deviceInfoName"></span></h4>
+                      <!-- <hr class="my-1"> -->
+                      <small id="deviceInfoSerial" class="text-body-secondary"></small>
+                    </div>
+                  </div>
+                  <div class="col-2">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button id="disconnect" class="btn btn-danger" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eject-fill" viewBox="0 0 16 16">
+                          <path d="M7.27 1.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H1.656C.78 9.5.326 8.455.926 7.816zM.5 11.5a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1z"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="downloadIncompleteDiv">
+              <div id="errorDiv">
+                <div class="alert alert-danger text-center" role="alert">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                    <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+                    <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                  </svg>
+                  <div id="errorMessageDiv">
+                    JavaScript Required
+                  </div>
+                </div>
+              </div>
+
+              <div id="connectDiv" style="display:none;">
+                  <button class="w-100 btn btn-primary btn-lg" type="submit" id="connect">Select Device</button>
+              </div>
+
+              <div id="connected2Div">
+
+                <div id="downloadFormDiv" style="display:none;">
+                  <div class="input-group">
+                    <input class="form-control form-control-md" id="firmwareFile" type="file">
+                    <button type="submit" class="btn btn-primary btn-md" id="download" disabled>Download</button>
+                  </div>
+                </div>
+
+                <div id="downloadActiveDiv" style="display:none;">
+                  <div class="progress">
+                    <div id="downloadProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div id="downloadCompleteDiv" style="display:none;">
+              <div class="container">
+                <div class="row">
+                  <div class="col-2">
+                  </div>
+                  <div class="col">
+                    <div class="text-center">
+                      <span><h4><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-check-lg text-success" viewBox="0 0 16 16">
+                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+                      </svg> Done!</h4></span>
+                    </div>
+                  </div>
+                  <div class="col-2">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+      <button class="btn btn-secondary py-2 dropdown-toggle d-flex align-items-center"
+              id="bd-theme"
+              type="button"
+              aria-expanded="false"
+              data-bs-toggle="dropdown"
+              aria-label="Toggle theme (auto)">
+        <svg class="bi my-1 theme-icon-active" width="1em" height="1em"><use href="#circle-half"></use></svg>
+        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+        <li>
+          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#sun-fill"></use></svg>
+            Light
+            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#moon-stars-fill"></use></svg>
+            Dark
+            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#circle-half"></use></svg>
+            Auto
+            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div style="display:none;">
+      <p>
+        <label for="vid">Vendor ID (hex):</label>
+        <input list="vendor_ids" type="text" name="vid" id="vid" maxlength="6" size="8" pattern="0x[A-Fa-f0-9]{1,4}" placeholder="0x303a"/>
+        <datalist id="vendor_ids">
+          <option value="0x303a">Espressif</option>
+          <option value="0x1209">dapboot DFU bootloader</option>
+          <option value="0x0D28">mbed DAPLink</option>
+          <option value="0x1EAF">LeafLabs Maple/stm32duino bootloader</option>
+        </datalist>
+      </p>
       <span id="status"></span>
-    </p>
-    <p>
-      <label for="vid">Vendor ID (hex):</label>
-      <input list="vendor_ids" type="text" name="vid" id="vid" maxlength="6" size="8" pattern="0x[A-Fa-f0-9]{1,4}"/>
-      <datalist id="vendor_ids">
-        <option value="0x1209">dapboot DFU bootloader</option>
-        <option value="0x0D28">mbed DAPLink</option>
-        <option value="0x1EAF">LeafLabs Maple/stm32duino bootloader</option>
-      </datalist>
-    </p>
-    <p>
-      <button id="connect">Connect</button>
-    </p>
-    <dialog id="interfaceDialog">
-      Your device has multiple DFU interfaces. Select one from the list below:
-      <form id="interfaceForm" method="dialog">
-        <button id="selectInterface" type="submit">Select interface</button>
-      </form>
-    </dialog>
-    <p>
       <div id="usbInfo" style="white-space: pre"></div>
       <div id="dfuInfo" style="white-space: pre"></div>
-    </p>
-    <fieldset>
-      <legend>Runtime mode</legend>
-      <button id="detach" disabled="true">Detach DFU</button>
-    </fieldset>
-    <fieldset>
+      <div class="log" id="downloadLog"></div>
+
       <form id="configForm">
-        <label for="transferSize">Transfer Size:</label>
-        <input type="number" name="transferSize" id="transferSize" value="1024"/>
-        <div id="dfuseFields" hidden="true">
-          <label for="dfuseStartAddress">DfuSe Start Address:</label>
-          <input type="text" name="dfuseStartAddress" id="dfuseStartAddress" title="Initial memory address to read/write from (hex)" size="10" pattern="0x[A-Fa-f0-9]+"/>
-          <label for="dfuseUploadSize">DfuSe Upload Size:</label>
-          <input type="number" name="dfuseUploadSize" id="dfuseUploadSize" min="1"/>
-        </div>
-      
-        <legend>DFU mode</legend>
-        <fieldset>
-          <legend>Firmware Download (write to USB device)</legend>
-          <p>
-            <input type="file" id="firmwareFile" name="file" disabled="true"/>
-          </p>
-          <p>
-            <button id="download" disabled="true">Download</button>
-          </p>
-          <div class="log" id="downloadLog"></div>
-        </fieldset>
-        <fieldset>
-          <legend>Firmware Upload (read from USB device)</legend>
-          <p>
-            <button id="upload" disabled="true">Upload</button>
-          </p>
-          <div class="log" id="uploadLog"></div>
-        </fieldset>
       </form>
-    </fieldset>
-    <h1>About</h1>
-    <p>
-      This is a proof-of-concept demo of host <a href="http://wiki.openmoko.org/wiki/USB_DFU">USB DFU</a> drivers in Javascript utilizing the <a href="https://wicg.github.io/webusb/">WebUSB</a> draft standard to implement USB firmware updates from the browser.
-    </p>
-    <h1>Prerequisites</h1>
-    <p>In order to run this demo, you will need:</p>
-    <ul>
-      <li>
-        <p>An up-to-date version of Chrome, at least version 61 or newer</p>
-      </li>
-      <li>
-        <p>A USB DFU class device</p>
-        <p>For a WebUSB friendly USB DFU bootloader that can be flashed onto <a href="http://wiki.stm32duino.com/index.php?title=Blue_Pill">inexpensive STM32F103 boards</a>, check out the <a href="https://github.com/devanlai/dapboot">dapboot</a> project.</p>
-        <p>Some recent STM32 parts have on-chip USB DfuSe bootloaders that are supported by this site.</p>
-      </li>
-    <ul>
+    </div>
+
+    <footer class="footer text-center mt-auto py-3 bg-body-tertiary">
+      <div class="container">
+        <span class="text-body-secondary">
+          <a href="https://github.com/boarchuz/bo_dfu_web" class="text-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+            </svg>
+          </a>
+        </span>
+      </div>
+    </footer>
+
+    <script src="bootstrap.bundle.min.js"></script>
   </body>
 </html>
