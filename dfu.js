@@ -513,7 +513,39 @@ var dfu = {};
             state = await this.getState();
         }
         if (state != dfu.dfuIDLE) {
-            throw "Failed to return to idle state after abort: state " + state.state;
+            throw "Failed to return to idle state after abort: state " + state;
+        }
+    };
+
+    dfu.Device.prototype.clearDownloadState = async function() {
+        let state = await this.getState();
+        console.log("previous state:" + state);
+        switch(state)
+        {
+            case dfu.dfuIDLE:
+                break;
+            case dfu.dfuERROR:
+                console.log("clearing...");
+                await this.clearStatus();
+                state = await this.getState();
+                break;
+            case dfu.appIDLE:
+            case dfu.appDETACH:
+                throw "Device is not in DFU mode";
+            case dfu.dfuIDLE:
+            case dfu.dfuDNLOAD_SYNC:
+            case dfu.dfuDNLOAD_IDLE:
+            case dfu.dfuMANIFEST_SYNC:
+            case dfu.dfuUPLOAD_IDLE:
+                console.log("aborting...");
+                await this.abort();
+                state = await this.getState();
+                break;
+            default:
+                throw "Device is in unknown DFU state (" + state + ")";
+        }
+        if (state != dfu.dfuIDLE) {
+            throw "Failed to return to idle state (" + state + ")";
         }
     };
 
@@ -584,6 +616,8 @@ var dfu = {};
 
         // Initialize progress to 0
         this.logProgress(bytes_sent, expected_size);
+
+        await this.clearDownloadState();
 
         while (bytes_sent < expected_size) {
             const bytes_left = expected_size - bytes_sent;

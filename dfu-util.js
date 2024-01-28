@@ -571,11 +571,26 @@ var device = null;
                     },
                     error => {
                         logError(error);
-                        setLogContext(null);
                         downloadFormDiv.style.display = "";
                         downloadActiveDiv.style.display = "none";
-                        errorMessageDiv.textContent = error;
-                        errorDiv.style.display = "";
+                        if(
+                            // Exclude errors that occur when the device is deliberately disconnected
+                            !(
+                                error.includes("The transfer was cancelled") ||
+                                error.includes("The device must be opened first") ||
+                                (
+                                    error.message && (
+                                        error.message.includes("The transfer was cancelled") ||
+                                        error.message.includes("The device must be opened first")
+                                    )
+                                )
+                            )
+                        )
+                        {
+                            errorMessageDiv.textContent = error;
+                            errorDiv.style.display = "";
+                        }
+                        setLogContext(null);
                     }
                 )
             }
